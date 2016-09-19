@@ -189,9 +189,8 @@ class CameraRollPicker extends Component {
       dataSource: this.state.dataSource.cloneWithRows(
         this._nEveryRow(this.state.images, imagesPerRow)
       ),
-    });
+    }, () => callback(this.state.selected, image));
 
-    callback(this.state.selected, image);
   }
 
   _nEveryRow(data, n) {
