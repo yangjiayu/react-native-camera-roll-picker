@@ -52,7 +52,6 @@ class Example extends Component {
           groupTypes='SavedPhotos'
           batchSize={5}
           maximum={5}
-          selected={this.state.selected}
           assetType='Photos'
           imagesPerRow={3}
           imageMargin={5}

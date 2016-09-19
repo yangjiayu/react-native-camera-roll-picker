@@ -17,6 +17,7 @@ class CameraRollPicker extends Component {
     super(props);
 
     this.state = {
+      image: undefined,
       images: [],
       selected: this.props.selected,
       lastCursor: null,
@@ -38,11 +39,11 @@ class CameraRollPicker extends Component {
     this.fetch();
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
-      selected: nextProps.selected,
-    });
-  }
+  //componentWillReceiveProps(nextProps) {
+  //  this.setState({
+  //    selected: nextProps.selected,
+  //  });
+  //}
 
   fetch() {
     if (!this.state.loadingMore) {
@@ -69,7 +70,7 @@ class CameraRollPicker extends Component {
     }
 
     CameraRoll.getPhotos(fetchParams)
-      .then((data) => this._appendImages(data), (e) => console.log(e));
+      .then((data) => this._appendImages(data));
   }
 
   _appendImages(data) {
@@ -113,12 +114,16 @@ class CameraRollPicker extends Component {
   }
 
   _renderImage(item) {
-    var {selectedMarker, imageMargin} = this.props;
+    var {imageMargin} = this.props;
 
-    var marker = selectedMarker ? selectedMarker :
+    var marker = (this._arrayObjectIndexOf(this.state.selected, 'uri', item.node.image.uri) >= 0) ?
       <Image
         style={[styles.marker, {width: 25, height: 25, right: imageMargin + 5},]}
-        source={require('./circle-check.png')}
+        source={require('./icon_select/icon_select_blue.png')}
+      /> :
+      <Image
+        style={[styles.marker, {width: 25, height: 25, right: imageMargin + 5},]}
+        source={require('./icon_select/icon_select_white.png')}
       />;
 
     return (
@@ -129,7 +134,7 @@ class CameraRollPicker extends Component {
         <Image
           source={{uri: item.node.image.uri}}
           style={{height: this._imageSize, width: this._imageSize}} >
-          { (this._arrayObjectIndexOf(this.state.selected, 'uri', item.node.image.uri) >= 0) ? marker : null }
+          {marker}
         </Image>
       </TouchableOpacity>
     );
@@ -166,7 +171,8 @@ class CameraRollPicker extends Component {
   _selectImage(image) {
     var {maximum, imagesPerRow, callback} = this.props;
 
-    var selected = this.state.selected,
+    var selected = maximum === 1 ? (this.state.image === image ? this.state.selected : []) :
+        this.state.selected,
         index = this._arrayObjectIndexOf(selected, 'uri', image.uri);
 
     if (index >= 0) {
@@ -178,7 +184,8 @@ class CameraRollPicker extends Component {
     }
 
     this.setState({
-      selected: selected,
+      image,
+      selected,
       dataSource: this.state.dataSource.cloneWithRows(
         this._nEveryRow(this.state.images, imagesPerRow)
       ),
@@ -272,8 +279,6 @@ CameraRollPicker.defaultProps = {
   backgroundColor: 'white',
   selected: [],
   callback: function(selectedImages, currentImage) {
-    console.log(currentImage);
-    console.log(selectedImages);
   },
 }
 
